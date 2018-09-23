@@ -1,0 +1,25 @@
+version: '3.5'
+networks:
+  internal_net:
+    name: zaragoza_net
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.3.0/24
+services:
+  routes:
+    container_name: adidas_routes
+    ports:
+        - '8081:8081'
+    image: com.adidas/trip
+    networks:
+      internal_net:
+        ipv4_address: 192.168.3.11
+  itineraries:
+    container_name: adidas_itineraries
+    ports:
+        - '8082:8082'
+    image: com.adidas/travel
+    networks:
+      internal_net:
+        ipv4_address: 192.168.3.12
