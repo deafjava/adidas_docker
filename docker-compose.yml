@@ -7,11 +7,34 @@ networks:
       config:
         - subnet: 192.168.3.0/24
 services:
+  eureka_server:
+    container_name: adidas_eureka
+    ports:
+        - '8088:8088'
+    image: com.adidas/eureka
+    healthcheck:
+      test: ["CMD", "curl", "http://192.168.3.15"]
+        interval: 5s
+        timeout: 5s
+        retries: 3
+        start_period: 1s
+    networks:
+      internal_net:
+        ipv4_address: 192.168.3.15
   routes:
     container_name: adidas_routes
+    depends_on:
+      eureka_server:
+        condition: service_healthy
     ports:
         - '8081:8081'
     image: com.adidas/trip
+    healthcheck:
+      test: ["CMD", "curl", "http://192.168.3.11"]
+        interval: 5s
+        timeout: 5s
+        retries: 3
+        start_period: 1s
     networks:
       internal_net:
         ipv4_address: 192.168.3.11
@@ -20,6 +43,9 @@ services:
     ports:
         - '8082:8082'
     image: com.adidas/travel
+    depends_on:
+      routes:
+        condition: service_healthy
     networks:
       internal_net:
         ipv4_address: 192.168.3.12
